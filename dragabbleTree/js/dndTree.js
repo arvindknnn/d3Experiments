@@ -48,7 +48,10 @@ treeJSON = d3.json("flare.json", function(error, treeData) {
     var viewerHeight = $(document).height();
 
     var tree = d3.layout.tree()
-        .size([viewerHeight, viewerWidth]);
+        .nodeSize([40,40])
+        .separation(function(a,b){
+        return (a.parent == b.parent ? 1 : 1) * 100 * (a.depth);
+        });
 
     // define a d3 diagonal projection for use by the node paths later on.
     var diagonal = d3.svg.diagonal()
@@ -102,6 +105,22 @@ var nodeRegistry = {};
             return b.name.toLowerCase() < a.name.toLowerCase() ? 1 : -1;
         });
     }
+
+    // AK's Hack
+    // sort the tree according to the node wrappers
+
+    // function sortTree() {
+    //     tree.sort(function(a, b) {
+    //         if (!a.wrapper) a.wrapper = "";
+    //         if (!b.wrapper) b.wrapper = "";
+    //         return b.wrapper.toLowerCase() < a.wrapper.toLowerCase() ? 1 : -1;
+    //     });
+    // }    
+    // END AK's Hack
+
+
+
+
     // Sort the tree initially incase the JSON isn't in a sorted order.
     sortTree();
 
@@ -370,6 +389,7 @@ var nodeRegistry = {};
     // Toggle children on click.
 
     function click(d) {
+        if (d.type === "statusIncidator") return;
         if (d3.event.defaultPrevented) return; // click suppressed
         d = toggleChildren(d);
         update(d);
@@ -423,13 +443,34 @@ var nodeRegistry = {};
             })
             .on('click', click);
 
-        nodeEnter.append("circle")
-            .attr('class', 'nodeCircle')
-            .attr("r", 0)
-            .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
+// AK's Hack
+        // nodeEnter.append("circle")
+        //     .attr('class', 'nodeCircle')
+        //     .attr("r", 0)
+        //     .style("fill", function(d) {
+        //         return d._children ? "lightsteelblue" : "#fff";
+        //     });
+
+        nodeEnter.append("image")
+            .attr("class", "node")
+            .attr("xlink:href", function(d) { return "img/" + d.icon + ".svg"; })
+            .attr("width", function(d){ 
+                var size = "40px";
+                if(d.type === "statusIncidator"){
+                    size = "20px";
+                }
+                return size;
+            })
+            .attr("height", function(d){ 
+                var size = "40px";
+                if(d.type === "statusIncidator"){
+                    size = "20px";
+                }
+                return size;
             });
 
+
+//End AK's Hack
         nodeEnter.append("text")
             .attr("x", function(d) {
                 return d.children || d._children ? -10 : 10;
@@ -471,29 +512,35 @@ var nodeRegistry = {};
             });
 
         // Change the circle fill depending on whether it has children and is collapsed
-        node.select("circle.nodeCircle")
-            .attr("r", 4.5)
-            .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
-            });
+        // node.select("circle.nodeCircle")
+        //     .attr("r", 4.5)
+        //     .style("fill", function(d) {
+        //         return d._children ? "lightsteelblue" : "#fff";
+        //     });
 
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
             .duration(duration)
-            .attr("transform", function(d) {
-                // AK's hack                
-                if(nodeRegistry[d.name]) {
-                    d.x = nodeRegistry[d.name].x;
-                    d.y = nodeRegistry[d.name].y;
-                }
-                else{
-                    nodeRegistry[d.name] = {
-                        x: d.x,
-                        y: d.y
-                     };
-                }
+            .attr("transform", function(d, i) {
+                // AK's hack                     
+                // if(nodeRegistry[d.nodeId]) {
+                //     d.x = nodeRegistry[d.nodeId].x;
+                //     d.y = nodeRegistry[d.nodeId].y;
+                // }
+                // else{
+                //     nodeRegistry[d.nodeId] = {
+                //         x: d.x,
+                //         y: d.y
+                //      };
+                // }
+
+                // var nodeOffset = 0;                    
+                var nodeOffset = 20;                    
+                if(d.type === "statusIncidator") nodeOffset = 10
+                return "translate(" + (d.y - nodeOffset)+ "," + (d.x - nodeOffset) + ")";
+                
                   // END AK's hack
-                return "translate(" + d.y + "," + d.x + ")";
+                // return "translate(" + d.y + "," + d.x + ")";
             });
 
         // Fade the text in
