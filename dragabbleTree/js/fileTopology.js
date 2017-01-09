@@ -58,16 +58,20 @@ require([ 'js/topologyVisualizer' ], function (TopologyVisualizer) {
             ],
             "icon": "icon_file_suspected"
         },
-        mode: "view"
+        mode: "edit"
     };
 
 
 
     var fileTopology = new TopologyVisualizer(topologyConf);
 
-    fileTopology.elementClick = function (element) {
-        console.log("The node that was clicked: " + element);
+    fileTopology.nodeClick = function (element, index) {
+        console.log("The node that was clicked at index: " + index );
     };
+
+    fileTopology.linkClick = function (element, index) {
+        console.log("The link that was clicked at index: " + index );
+    };    
 
     fileTopology.build();
 

@@ -28,10 +28,22 @@ define([], function () {
     'use strict';
 
 
-    var treeData, mode;
+    var treeData, visualizerMode;
+
+    var events = d3.dispatch("nodeClick", "linkClick");
 
     function buildTopology() {
-        var node, dragListener, scale, x, y;
+        var node,
+            dragListener, 
+            scale, x, y,
+            dragStarted,
+            nodes,            
+            domNode,
+            nodePaths,
+            links,
+            nodesExit,
+            parentLink,
+            relCoords;
 
         // Calculate total nodes, max label length
         var totalNodes = 0;
@@ -384,8 +396,8 @@ define([], function () {
 
         // Toggle children on click.
 
-        function click(d) {
-            self.elementClick(d);
+        function nodeClick(d, i) {
+            events.nodeClick(d, i);
             if (!d.children && !d._children) return;
             if (d.type === "statusIncidator") return;
             if (d3.event.defaultPrevented) return; // click suppressed
@@ -393,6 +405,10 @@ define([], function () {
             update(d);
             centerNode(d);
         }
+
+        function linkClick(d, i) {
+            events.linkClick(d, i);
+        }        
 
         function update(source) {
             // Compute the new height, function counts total children of root node and sets tree height accordingly.
@@ -434,13 +450,14 @@ define([], function () {
 
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
-                .call(dragListener)
                 .attr("class", "node")
                 .attr("transform", function (d) {
                     return "translate(" + source.y0 + "," + source.x0 + ")";
                 })
-                .on('click', click);
+                .on('click', nodeClick);
 
+            if(visualizerMode === "edit") nodeEnter.call(dragListener);
+            
             // AK's Hack
             // nodeEnter.append("circle")
             //     .attr('class', 'nodeCircle')
@@ -561,7 +578,7 @@ define([], function () {
                 });
 
             // Enter any new links at the parent's previous position.
-            link.enter().insert("path", "g")
+            var linkEnter = link.enter().insert("path", "g")
                 .attr("class", "link")
                 .attr("d", function (d) {
                     var o = {
@@ -572,7 +589,26 @@ define([], function () {
                         source: o,
                         target: o
                     });
-                });
+                })
+                .on('click', linkClick)
+                link.append("image")
+                .attr("class", "node")
+                .attr("xlink:href", function (d) { 
+                    return "img/" + d.target.linkIcon + ".svg"; })
+    .attr("transform", function(d) {
+                return "translate(" +((d.target.x+d.source.x)/2) + "," +
+                    ((d.target.y+d.source.y))/2 + ")";
+            })                    
+                .attr("width", function (d) {
+                    var size = "20px";
+                    return size;
+                })
+                .attr("height", function (d) {
+                    var size = "20px";
+                    return size;
+                });           
+
+
 
             // Transition links to their new position.
             link.transition()
@@ -620,12 +656,13 @@ define([], function () {
         buildTopology();
     }
 
-    function setConfiguration(conf){
+    function setConfiguration(conf) {
         treeData = conf.data;
-        mode = conf.mode;        
+        visualizerMode = conf.mode;
     }
 
     return {
-        init: init
+        init: init,
+        events: events
     };
 });
