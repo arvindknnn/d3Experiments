@@ -48,10 +48,7 @@ treeJSON = d3.json("flare.json", function(error, treeData) {
     var viewerHeight = $(document).height();
 
     var tree = d3.layout.tree()
-        .nodeSize([40,40])
-        .separation(function(a,b){
-        return (a.parent == b.parent ? 1 : 1) * 100 * (a.depth);
-        });
+        .size([viewerHeight, viewerWidth]);
 
     // define a d3 diagonal projection for use by the node paths later on.
     var diagonal = d3.svg.diagonal()
@@ -65,11 +62,6 @@ treeJSON = d3.json("flare.json", function(error, treeData) {
 var nodeRegistry = {};
 
 //END AK's hack
-
-
-
-
-
 
 
     // A recursive helper function for performing some setup by walking through all nodes
@@ -389,6 +381,7 @@ var nodeRegistry = {};
     // Toggle children on click.
 
     function click(d) {
+        if (!d.children && !d._children) return;
         if (d.type === "statusIncidator") return;
         if (d3.event.defaultPrevented) return; // click suppressed
         d = toggleChildren(d);
@@ -413,7 +406,7 @@ var nodeRegistry = {};
             }
         };
         childCount(0, root);
-        var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
+        var newHeight = d3.max(levelWidth) * 150; // 25 pixels per line        
         tree = tree.size([newHeight, viewerWidth]);
 
         // Compute the new tree layout.
@@ -456,16 +449,10 @@ var nodeRegistry = {};
             .attr("xlink:href", function(d) { return "img/" + d.icon + ".svg"; })
             .attr("width", function(d){ 
                 var size = "40px";
-                if(d.type === "statusIncidator"){
-                    size = "20px";
-                }
                 return size;
             })
             .attr("height", function(d){ 
                 var size = "40px";
-                if(d.type === "statusIncidator"){
-                    size = "20px";
-                }
                 return size;
             });
 
@@ -535,7 +522,8 @@ var nodeRegistry = {};
                 // }
 
                 // var nodeOffset = 0;                    
-                var nodeOffset = 20;                    
+                var nodeOffset = 20;     
+                // d.x = d.x + (i * 30);               
                 if(d.type === "statusIncidator") nodeOffset = 10
                 return "translate(" + (d.y - nodeOffset)+ "," + (d.x - nodeOffset) + ")";
                 

@@ -1,0 +1,88 @@
+{
+  "name": "Start",
+  "nodeId": "start",
+  "children":[
+    {
+      "name":"",
+      "nodeId": "",
+      "children": [
+        {
+          "name": "",
+          "children":[],
+          "type": "file",
+          "icon": "icon_file_suspected"
+        }
+      ],
+      "type": "statusIncidator",
+      "icon":"icon_started_default"
+    },
+    {
+      "name":"",
+      "children": [
+        {
+          "name": "",
+          "children":[
+            {
+              "name":"",
+              "children": [
+                {
+                  "name": "",
+                  "children":[],
+                  "type": "file",
+                  "icon": "icon_file_suspected"
+                }
+              ],
+              "type": "statusIncidator",
+              "icon":"icon_dropped_default"      
+            }            
+          ],
+          "type": "file",
+          "icon": "icon_file_suspected"
+        }
+      ],
+      "type": "statusIncidator",
+      "icon":"icon_started_default"      
+    },
+    {
+      "name":"",
+      "children": [
+        {
+          "name": "",
+          "children":[
+            {
+              "name":"",
+              "children": [
+                {
+                  "name": "",
+                  "children":[],
+                  "type": "file",
+                  "icon": "icon_internet_malicious"
+                }
+              ],
+              "type": "statusIncidator",
+              "icon":"icon_contacted_default"      
+            },
+            {
+              "name":"",
+              "children": [
+                {
+                  "name": "",
+                  "children":[],
+                  "type": "file",
+                  "icon": "icon_file_suspected"
+                }
+              ],
+              "type": "statusIncidator",
+              "icon":"icon_contacted_default"      
+            }                          
+          ],
+          "type": "file",
+          "icon": "icon_file_suspected"
+        }
+      ],
+      "type": "statusIncidator",
+      "icon":"icon_started_default"      
+    }
+  ],
+  "icon": "icon_file_suspected"
+}

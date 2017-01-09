@@ -1,88 +1,57 @@
 {
   "name": "Start",
   "nodeId": "start",
-  "children":[
-    {
-      "name":"a",
-      "nodeId": "",
-      "children": [
+  "children": [
         {
           "name": "",
+          "nodeId": "suspectedFile_1",
           "children":[],
           "type": "file",
-          "icon": "icon_file_suspected"
-        }
-      ],
-      "type": "statusIncidator",
-      "icon":"icon_started_default"
-    },
-    {
-      "name":"",
-      "children": [
-        {
+          "icon": "icon_file_suspected",
+          "linkIcon": "icon_started_default"
+        },
+       {
           "name": "",
+          "nodeId": "suspectedFile_2",          
           "children":[
             {
-              "name":"",
-              "children": [
-                {
-                  "name": "",
-                  "children":[],
-                  "type": "file",
-                  "icon": "icon_file_suspected"
-                }
-              ],
-              "type": "statusIncidator",
-              "icon":"icon_dropped_default"      
-            }            
+                "name": "",
+                "nodeId": "suspectedFile_4",          
+                "children":[],
+                "type": "file",
+                "icon": "icon_file_suspected",
+                "linkIcon": "icon_dropped_default"
+              }           
           ],
           "type": "file",
-          "icon": "icon_file_suspected"
-        }
-      ],
-      "type": "statusIncidator",
-      "icon":"icon_started_default"      
-    },
-    {
-      "name":"",
-      "children": [
+          "icon": "icon_file_suspected",
+          "linkIcon": "icon_started_default"
+        },
         {
           "name": "",
+          "nodeId": "suspectedFile_3",          
           "children":[
             {
-              "name":"",
-              "children": [
-                {
+                "name": "",
+                "nodeId": "internetTraffic1",          
+                "children":[],
+                "type": "file",
+                "icon": "icon_internet_default",
+                "linkIcon": "icon_contacted_default"
+              },
+              {
                   "name": "",
+                  "nodeId": "suspectedFile_5",          
                   "children":[],
                   "type": "file",
-                  "icon": "icon_internet_malicious"
-                }
-              ],
-              "type": "statusIncidator",
-              "icon":"icon_contacted_default"      
-            },
-            {
-              "name":"",
-              "children": [
-                {
-                  "name": "",
-                  "children":[],
-                  "type": "file",
-                  "icon": "icon_file_suspected"
-                }
-              ],
-              "type": "statusIncidator",
-              "icon":"icon_contacted_default"      
-            }                          
+                  "icon": "icon_file_suspected",
+                  "linkIcon": "icon_contacted_default"
+                }                           
           ],
           "type": "file",
-          "icon": "icon_file_suspected"
+          "icon": "icon_file_suspected",
+          "linkIcon": "icon_started_default"
         }
-      ],
-      "type": "statusIncidator",
-      "icon":"icon_started_default"      
-    }
   ],
   "icon": "icon_file_suspected"
 }
