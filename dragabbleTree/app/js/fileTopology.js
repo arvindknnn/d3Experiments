@@ -166,7 +166,8 @@ require([ '../../js/topologyVisualizer.js' ], function (TopologyVisualizer) {
             "icon": "app/img/icon_file_suspected.svg"
         },
         mode: "edit",
-        collapseChildrenThreshold: 5
+        collapseChildrenThreshold: 5,
+        topologyContainerId: "tree-container"
     };
 
 

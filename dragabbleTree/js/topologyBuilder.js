@@ -28,7 +28,8 @@ define([], function () {
     'use strict';
 
 
-    var treeData,
+    var topologyContainerId,
+        treeData,
         visualizerMode,
         collapseChildrenThreshold = 5;
 
@@ -66,9 +67,10 @@ define([], function () {
         var duration = 750;
         var root;
 
+        var $topologyContainer = $("#" + topologyContainerId);
         // size of the diagram
-        var viewerWidth = $(document).width();
-        var viewerHeight = $(document).height();
+        var viewerWidth = $topologyContainer.width();
+        var viewerHeight = $topologyContainer.height();
 
         var tree = d3.layout.tree()
             .size([ viewerHeight, viewerWidth ]);
@@ -225,10 +227,8 @@ define([], function () {
         }
 
         // define the baseSvg, attaching a class for styling and the zoomListener
-        var baseSvg = d3.select("#tree-container").append("svg")
-            .attr("width", viewerWidth)
-            .attr("height", viewerHeight)
-            .attr("class", "overlay")
+        var baseSvg = d3.select("#" + topologyContainerId).append("svg")
+            .attr("class", "topology-outer")
             .call(zoomListener);
 
 
@@ -310,6 +310,8 @@ define([], function () {
                 }
             });
 
+
+
         function endDrag() {
             selectedNode = null;
             d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
@@ -383,12 +385,12 @@ define([], function () {
 
         function centerNode(source) {
             var source = root; // hack to ensure that the centering always happens on the root node and not on the source passed to the function
-            scale = zoomListener.scale();            
+            scale = zoomListener.scale();
             x = -source.y0;
             y = -source.x0;
             // Account for the 40px icon size, # of generations so the center of the graph is at teh center of the screen rather than the first node being at the center of the screen and wasting all teh real estate to the left of the first node
             // TODO: Still buggy in re-positioning after expand + collapse
-            x = x * scale + ((viewerWidth / 2) - (totalDepth * generationWidth)) + (2 * nodePositionOffset); 
+            x = x * scale + ((viewerWidth / 2) - (totalDepth * generationWidth)) + (2 * nodePositionOffset);
             y = y * scale + viewerHeight / 2;
             d3.select('g').transition()
                 .duration(duration)
@@ -718,6 +720,7 @@ define([], function () {
         treeData = conf.data;
         visualizerMode = conf.mode;
         collapseChildrenThreshold = conf.collapseChildrenThreshold || collapseChildrenThreshold;
+        topologyContainerId = conf.topologyContainerId;
     }
 
     return {
