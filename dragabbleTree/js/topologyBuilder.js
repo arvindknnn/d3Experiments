@@ -43,11 +43,15 @@ define([], function () {
             links,
             nodesExit,
             parentLink,
-            relCoords;
+            relCoords,
+            translateCoords,
+            generationWidth = 150,
+            lineHeight = 150;            
 
         // Calculate total nodes, max label length
         var totalNodes = 0;
         var maxLabelLength = 0;
+        var totalDepth = 0;
         // variables for drag/drop
         var selectedNode = null;
         var draggingNode = null;
@@ -369,10 +373,11 @@ define([], function () {
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
 
         function centerNode(source) {
+            var source = root; // hack to ensure that the centering always happens on the root node and not on the source passed to the function
             scale = zoomListener.scale();
             x = -source.y0;
             y = -source.x0;
-            x = x * scale + viewerWidth / 2;
+            x = x * scale + ((viewerWidth / 2) - (totalDepth * generationWidth));
             y = y * scale + viewerHeight / 2;
             d3.select('g').transition()
                 .duration(duration)
@@ -427,7 +432,7 @@ define([], function () {
                 }
             };
             childCount(0, root);
-            var newHeight = d3.max(levelWidth) * 150; // 25 pixels per line        
+            var newHeight = d3.max(levelWidth) * lineHeight; // 25 pixels per line        
             tree = tree.size([ newHeight, viewerWidth ]);
 
             // Compute the new tree layout.
@@ -440,6 +445,10 @@ define([], function () {
                 // alternatively to keep a fixed scale one can set a fixed depth per level
                 // Normalize for fixed-depth by commenting out below line
                 // d.y = (d.depth * 500); //500px per level.
+                d.y = (d.depth * generationWidth);
+
+                // Find max levels
+                totalDepth = (d.depth > totalDepth) ? d.depth : totalDepth;                
             });
 
             // Update the nodes…

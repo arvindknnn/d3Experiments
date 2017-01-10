@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <style type="text/css">
   
-	.node {
+	.nodes {
     cursor: pointer;
   }
 
@@ -10,16 +10,46 @@
       background-color:#EEE;
   }
    
-  .node circle {
+  .nodes circle {
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+  }
+
+  .nodes rect {
     fill: #fff;
     stroke: steelblue;
     stroke-width: 1.5px;
   }
    
-  .node text {
+  .nodeInnerText {
+    font-size:20px !important;       
+  }
+
+  .nodes text, .link text  {
     font-size:10px; 
     font-family:sans-serif;
   }
+
+  .nodes.expanded .node-rect {
+    width: 0px;
+    height: 0px;
+  }
+
+  .nodes.expanded .node-image {
+    width: 40px;
+    height: 40px;
+  }
+
+    .nodes.collapsed .node-rect {
+    width: 40px;
+    height: 40px;    
+  }
+
+  .nodes.collapsed .node-image {
+    width: 0px;
+    height: 0px;
+  } 
    
   .link {
     fill: none;

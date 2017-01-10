@@ -15,7 +15,7 @@ require([ 'js/topologyVisualizer' ], function (TopologyVisualizer) {
                 },
                 {
                     "name": "",
-                    "nodeId": "suspectedFile_2",
+                    "nodeId": "suspectedFile_12345",
                     "children": [
                         {
                             "name": "",
@@ -24,7 +24,56 @@ require([ 'js/topologyVisualizer' ], function (TopologyVisualizer) {
                             "type": "file",
                             "icon": "icon_file_suspected",
                             "linkIcon": "icon_dropped_default"
-                        }
+                        },
+                        {
+                            "name": "",
+                            "nodeId": "suspectedFile_4",
+                            "children": [],
+                            "type": "file",
+                            "icon": "icon_file_suspected",
+                            "linkIcon": "icon_dropped_default"
+                        },
+                        {
+                            "name": "",
+                            "nodeId": "suspectedFile_4",
+                            "children": [],
+                            "type": "file",
+                            "icon": "icon_file_suspected",
+                            "linkIcon": "icon_dropped_default"
+                        },
+                        {
+                            "name": "",
+                            "nodeId": "suspectedFile_4",
+                            "children": [],
+                            "type": "file",
+                            "icon": "icon_file_suspected",
+                            "linkIcon": "icon_dropped_default"
+                        },
+                        {
+                            "name": "",
+                            "nodeId": "suspectedFile_4",
+                            "children": [],
+                            "type": "file",
+                            "icon": "icon_file_suspected",
+                            "linkIcon": "icon_dropped_default"
+                        },
+                        {
+                            "name": "",
+                            "nodeId": "suspectedFile_4",
+                            "children": [],
+                            "type": "file",
+                            "icon": "icon_file_suspected",
+                            "linkIcon": "icon_dropped_default"
+                        },
+                        {
+                            "name": "",
+                            "nodeId": "suspectedFile_4",
+                            "children": [],
+                            "type": "file",
+                            "icon": "icon_file_suspected",
+                            "linkIcon": "icon_dropped_default"
+                        }                                                                                                                        
+                                                
                     ],
                     "type": "file",
                     "icon": "icon_file_suspected",
@@ -58,7 +107,7 @@ require([ 'js/topologyVisualizer' ], function (TopologyVisualizer) {
             ],
             "icon": "icon_file_suspected"
         },
-        mode: "edit"
+        mode: "view"
     };
 
 
