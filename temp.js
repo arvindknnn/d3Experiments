@@ -28,17 +28,16 @@ define([], function () {
     'use strict';
 
 
-    var treeData,
-        visualizerMode,
-        collapseChildrenThreshold = 5;
+    var treeData, visualizerMode;
 
-    var events = d3.dispatch("nodeClick", "linkClick", "nodeMouseOver", "nodeMouseOut");
+    var events = d3.dispatch("nodeClick", "linkClick");
 
     function buildTopology() {
         var node,
             dragListener,
-            scale, x, y,
+            scale, x, y, scaleX, scaleY,
             dragStarted,
+            panTimer,
             nodes,
             domNode,
             nodePaths,
@@ -49,7 +48,7 @@ define([], function () {
             translateCoords,
             generationWidth = 150,
             lineHeight = 150,
-            nodePositionOffset = 20;
+            collapseChildrenThreshold = 5;
 
         // Calculate total nodes, max label length
         var totalNodes = 0;
@@ -108,11 +107,11 @@ define([], function () {
             totalNodes++;
             maxLabelLength = Math.max(d.name.length, maxLabelLength);
             d.childrenState = "expanded";
-            if (d.children && d.children.length > collapseChildrenThreshold) {
-                d._children = d.children;
-                d.children = [];
-                d.childrenState = "collapsed";
-            }
+            // if (d.children && d.children.length > 5) {
+            //     d._children = d.children;
+            //     d.children = [];
+            //     d.childrenState = "collapsed";
+            // }
 
         }, function (d) {
             return d.children && d.children.length > 0 ? d.children : null;
@@ -382,8 +381,9 @@ define([], function () {
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
 
         function centerNode(source) {
-            var source = root; // hack to ensure that the centering always happens on the root node and not on the source passed to the function
-            scale = zoomListener.scale();            
+            var source = root;
+            console.log(totalDepth);
+            scale = zoomListener.scale();
             x = -source.y0;
             y = -source.x0;
             x = x * scale + ((viewerWidth / 2) - (totalDepth * generationWidth));
@@ -415,19 +415,10 @@ define([], function () {
         function nodeClick(d, i) {
             events.nodeClick(d, i);
             if (!d.children && !d._children) return;
-            if (d.type === "statusIncidator") return;
             if (d3.event.defaultPrevented) return; // click suppressed
             d = toggleChildren(d);
             update(d);
             centerNode(d);
-        }
-
-        function nodeMouseOver(d, i) {
-            events.nodeMouseOver(d, i);
-        }
-
-        function nodeMouseOut(d, i) {
-            events.nodeMouseOut(d, i);
         }
 
         function linkClick(d, i) {
@@ -455,25 +446,20 @@ define([], function () {
             tree = tree.size([ newHeight, viewerWidth ]);
 
             // Compute the new tree layout.
-            var nodes = tree.nodes(root).reverse();
+            var nodes = tree.nodes(root).reverse(),
+                links = tree.links(nodes);
 
             // Set widths between levels based on maxLabelLength.
             nodes.forEach(function (d) {
                 // d.y = (d.depth * (maxLabelLength * 10)); //maxLabelLength * 10px
                 // alternatively to keep a fixed scale one can set a fixed depth per level
                 // Normalize for fixed-depth by commenting out below line
-                // d.y = (d.depth * 500); //500px per level.
-                d.y = (d.depth * generationWidth);
+                d.y = (d.depth * generationWidth); //500px per level.
 
-                d.x -= nodePositionOffset;
-                d.y -= nodePositionOffset;
-
-                // Find max depth
+                // Find max levels
                 totalDepth = (d.depth > totalDepth) ? d.depth : totalDepth;
+
             });
-
-
-            var links = tree.links(nodes);
 
             // Update the nodes…
             node = svgGroup.selectAll("g.node")
@@ -483,34 +469,52 @@ define([], function () {
 
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
-                .attr("class", "node")
+                .attr("class", function (d, i) {
+                    console.log("Name: " + d.name + "; Id: " + i);
+                    return (d.childrenState === "collapsed") ? "nodes collapsed node" + i : "nodes expanded node" + i;
+                })
                 .attr("transform", function (d) {
                     return "translate(" + source.y0 + "," + source.x0 + ")";
                 })
-                .on('click', nodeClick)
-                .on('mouseover', nodeMouseOver)
-                .on('mouseout', nodeMouseOut);
+                .on('click', nodeClick);
 
             if (visualizerMode === "edit") nodeEnter.call(dragListener);
 
             // AK's Hack
+            // nodeEnter.append("circle")
+            //     .attr('class', 'nodeCircle')
+            //     .attr("r", 0)
+            //     .style("fill", function(d) {
+            //         return d._children ? "lightsteelblue" : "#fff";
+            //     });
 
             nodeEnter.append("image")
-                .attr("xlink:href", function (d) { return d.icon; });
+                .attr("class", "node-image")
+                .attr("xlink:href", function (d) { return "img/" + d.icon + ".svg"; });
 
-            nodeEnter.append("rect");
+            nodeEnter.append("rect")
+                .attr("class", "node-rect");
 
             nodeEnter.append("text")
+                .attr("x", function (d) {
+                    return 15;
+                })
+                .attr("y", function (d) {
+                    return 28;
+                })
                 .attr('class', 'nodeInnerText')
+                .text(function (d) {
+                    var text = (d._children) ? d._children.length : 0;
+                    return (d.childrenState === "collapsed") ? text : "";
+                })
                 .style("fill-opacity", 0);
-
 
             //End AK's Hack
             nodeEnter.append("text")
                 .attr("x", function (d) {
                     return d.children || d._children ? -10 : 10;
                 })
-                .attr("dy", ".35em")
+                .attr("dy", ".5em")
                 .attr('class', 'nodeText')
                 .attr("text-anchor", function (d) {
                     return d.children || d._children ? "end" : "start";
@@ -525,7 +529,7 @@ define([], function () {
                 .attr('class', 'ghostCircle')
                 .attr("r", 30)
                 .attr("opacity", 0.2) // change this to zero to hide the target area
-                .style("fill", "green")
+                .style("fill", "red")
                 .attr('pointer-events', 'mouseover')
                 .on("mouseover", function (node) {
                     overCircle(node);
@@ -546,6 +550,13 @@ define([], function () {
                     return d.name;
                 });
 
+            // Change the circle fill depending on whether it has children and is collapsed
+            // node.select("circle.nodeCircle")
+            //     .attr("r", 4.5)
+            //     .style("fill", function(d) {
+            //         return d._children ? "lightsteelblue" : "#fff";
+            //     });
+
             // Transition nodes to their new position.
             var nodeUpdate = node.transition()
                 .duration(duration)
@@ -564,9 +575,9 @@ define([], function () {
 
                     // var nodeOffset = 0;                    
                     var nodeOffset = 20;
-                    // d.y = d.y - nodeOffset;
-                    // d.x = d.x - nodeOffset;
-                    return "translate(" + (d.y) + "," + (d.x) + ")";
+                    // d.x = d.x + (i * 30);               
+                    if (d.type === "statusIncidator") nodeOffset = 10
+                    return "translate(" + (d.y - nodeOffset) + "," + (d.x - nodeOffset) + ")";
 
                     // END AK's hack
                     // return "translate(" + d.y + "," + d.x + ")";
@@ -576,41 +587,11 @@ define([], function () {
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
 
-            nodeUpdate.select("rect")
-                .attr("class", function (d) { return (d.childrenState === "collapsed") ? "node-rect collapsed" : "node-rect expanded"; })
-                .attr("x", function (d) {
-                    return -nodePositionOffset;
-                })
-                .attr("y", function (d) {
-                    return -nodePositionOffset;
-                });
-
-            nodeUpdate.select("image")
-                .attr("class", function (d) { return (d.childrenState === "collapsed") ? "node-image collapsed" : "node-image expanded"; })
-                .attr("x", function (d) {
-                    return -nodePositionOffset;
-                })
-                .attr("y", function (d) {
-                    return -nodePositionOffset;
-                });
-
-            nodeUpdate.select(".nodeInnerText")
-                .attr("x", function (d) {
-                    return -5;
-                })
-                .attr("y", function (d) {
-                    return 7;
-                })
-                .text(function (d) {
-                    var text = (d._children) ? d._children.length : 0;
-                    return (d.childrenState === "collapsed") ? text : "";
-                })
-
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit().transition()
                 .duration(duration)
                 .attr("transform", function (d) {
-                    return "translate(" + (source.y) + "," + (source.x) + ")";
+                    return "translate(" + source.y + "," + source.x + ")";
                 })
                 .remove();
 
@@ -639,25 +620,27 @@ define([], function () {
                         target: o
                     });
                 })
+                .text(function (d) {
+                    return "L";
+                })
                 .on('click', linkClick);
 
-            link.append("image")
-                .attr("class", "node")
-                .attr("xlink:href", function (d) {
-                    return d.target.linkIcon;
-                })
-                .attr("transform", function (d) {
-                    return "translate(" + ((d.target.x + d.source.x) / 2) + "," +
-                        ((d.target.y + d.source.y)) / 2 + ")";
-                })
-                .attr("width", function (d) {
-                    var size = "20px";
-                    return size;
-                })
-                .attr("height", function (d) {
-                    var size = "20px";
-                    return size;
-                });
+            // link.enter().append("image")                
+            //     .attr("xlink:href", function (d) {
+            //         return "img/" + d.target.linkIcon + ".svg";
+            //     })
+            //     .attr("transform", function (d) {
+            //         return "translate(" + ((d.target.y + d.source.y)) / 2 + "," +
+            //             ((d.target.x + d.source.x) / 2) + ")";
+            //     })
+            //     .attr("width", function (d) {
+            //         var size = "20px";
+            //         return size;
+            //     })
+            //     .attr("height", function (d) {
+            //         var size = "20px";
+            //         return size;
+            //     });
 
 
 
@@ -710,7 +693,6 @@ define([], function () {
     function setConfiguration(conf) {
         treeData = conf.data;
         visualizerMode = conf.mode;
-        collapseChildrenThreshold = conf.collapseChildrenThreshold || collapseChildrenThreshold;
     }
 
     return {

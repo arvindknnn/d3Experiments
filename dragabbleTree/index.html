@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <style type="text/css">
   
-	.nodes {
+	.node {
     cursor: pointer;
   }
 
@@ -10,45 +10,48 @@
       background-color:#EEE;
   }
    
-  .nodes circle {
+  .node circle {
     fill: #fff;
     stroke: steelblue;
     stroke-width: 1.5px;
   }
 
-  .nodes rect {
-    fill: #fff;
-    stroke: steelblue;
-    stroke-width: 1.5px;
+  .node-rect {
+    fill: #D3D3D3;
+    width: 40px;
+    height: 40px;    
+    stroke: #fff;
+    stroke-width: 1px;
   }
-   
+
+  .node-image {
+    width: 40px;
+    height: 40px; 
+  }
+
   .nodeInnerText {
     font-size:20px !important;       
   }
 
-  .nodes text, .link text  {
+  .node text, .link text  {
     font-size:10px; 
     font-family:sans-serif;
   }
 
-  .nodes.expanded .node-rect {
-    width: 0px;
-    height: 0px;
+  .node-rect.expanded {
+    display: none;
   }
 
-  .nodes.expanded .node-image {
-    width: 40px;
-    height: 40px;
+  .node-image.expanded {
+    display: block;
   }
 
-    .nodes.collapsed .node-rect {
-    width: 40px;
-    height: 40px;    
+  .node-rect.collapsed  {
+    display: block;  
   }
 
-  .nodes.collapsed .node-image {
-    width: 0px;
-    height: 0px;
+  .node-image.collapsed {
+    display: none;
   } 
    
   .link {
@@ -60,7 +63,7 @@
 
   .templink {
     fill: none;
-    stroke: red;
+    stroke: green;
     stroke-width: 3px;
   }
 
@@ -73,13 +76,14 @@
   }
 
 </style>
+<!--<link rel="stylesheet" href="app/css/app.css">-->
 <!--<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>-->
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="js/vendor/jquery.min.js"></script>
 <script src="js/vendor/require.js"></script>
 <!--<script src="js/vendor/d3.js"></script>-->
 <!--<script src="js/dndTree.js"></script>-->
-<script src="js/fileTopology.js"></script>
+<script src="app/js/fileTopology.js"></script>
 <body>
     <div id="tree-container"></div>
 </body>
