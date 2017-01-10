@@ -386,7 +386,9 @@ define([], function () {
             scale = zoomListener.scale();            
             x = -source.y0;
             y = -source.x0;
-            x = x * scale + ((viewerWidth / 2) - (totalDepth * generationWidth));
+            // Account for the 40px icon size, # of generations so the center of the graph is at teh center of the screen rather than the first node being at the center of the screen and wasting all teh real estate to the left of the first node
+            // TODO: Still buggy in re-positioning after expand + collapse
+            x = x * scale + ((viewerWidth / 2) - (totalDepth * generationWidth)) + (2 * nodePositionOffset); 
             y = y * scale + viewerHeight / 2;
             d3.select('g').transition()
                 .duration(duration)
@@ -464,9 +466,6 @@ define([], function () {
                 // Normalize for fixed-depth by commenting out below line
                 // d.y = (d.depth * 500); //500px per level.
                 d.y = (d.depth * generationWidth);
-
-                d.x -= nodePositionOffset;
-                d.y -= nodePositionOffset;
 
                 // Find max depth
                 totalDepth = (d.depth > totalDepth) ? d.depth : totalDepth;
@@ -579,26 +578,34 @@ define([], function () {
             nodeUpdate.select("rect")
                 .attr("class", function (d) { return (d.childrenState === "collapsed") ? "node-rect collapsed" : "node-rect expanded"; })
                 .attr("x", function (d) {
+                    // Account for 40px rect size. nodePositionOffset is set to 20 so that the center of the rect aligns with the node's center
                     return -nodePositionOffset;
                 })
                 .attr("y", function (d) {
+                    // Account for 40px rect size. nodePositionOffset is set to 20 so that the center of the rect aligns with the node's center                    
                     return -nodePositionOffset;
                 });
 
             nodeUpdate.select("image")
                 .attr("class", function (d) { return (d.childrenState === "collapsed") ? "node-image collapsed" : "node-image expanded"; })
                 .attr("x", function (d) {
+                    // Account for 40px icon size. nodePositionOffset is set to 20 so that the center of the image aligns with the node's center                    
                     return -nodePositionOffset;
                 })
                 .attr("y", function (d) {
+                    // Account for 40px icon size. nodePositionOffset is set to 20 so that the center of the image aligns with the node's center                    
                     return -nodePositionOffset;
                 });
 
             nodeUpdate.select(".nodeInnerText")
                 .attr("x", function (d) {
+                    // Account for 40px rect size.
+                    // TODO: This return value needs to be modified if the rect is changed from 40px
                     return -5;
                 })
                 .attr("y", function (d) {
+                    // Account for 40px rect size.
+                    // TODO: This return value needs to be modified if the rect is changed from 40px                    
                     return 7;
                 })
                 .text(function (d) {
