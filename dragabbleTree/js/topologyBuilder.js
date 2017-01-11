@@ -111,13 +111,37 @@ define([], function () {
             maxLabelLength = Math.max(d.name.length, maxLabelLength);
             d.childrenState = "expanded";
             if (d.children && d.children.length > collapseChildrenThreshold) {
-                d._children = d.children;
-                d.children = [];
-                d.childrenState = "collapsed";
-            }
+                // d._children = d.children;
+                // d.children = [];                
+                // d.childrenState = "collapsed";
 
+                if (!d.groupNode) {
+                    var intermediateNode = {
+                        name: "",
+                        children: d.children,
+                        childrenState: "collapsed",
+                        groupNode: true,
+                        depth: d.depth + 1
+                    };
+                    d.children = [ intermediateNode ];
+                    d.childrenGrouped = true;
+                    d.intermediateNode = null;
+                } else {
+                    d._children = d.children;
+                    d.children = [];
+                    d.childrenState = "collapsed";
+                }
+            }                
+            
         }, function (d) {
-            return d.children && d.children.length > 0 ? d.children : null;
+            var children = null;
+            if (d.children && d.children.length > 0 ) {
+                children = d.children;
+            }
+            else if (d._children && d._children.length > 0 ) {
+                children = d._children;
+            }
+            return children;
         });
 
 
@@ -401,15 +425,57 @@ define([], function () {
 
         // Toggle children function
 
+        // function toggleChildren(d) {
+        //     if (d.children) {
+        //         d._children = d.children;
+        //         d.children = null;
+        //         d.childrenState = "collapsed";
+        //     } else if (d._children) {
+        //         d.children = d._children;
+        //         d._children = null;
+        //         d.childrenState = "expanded";
+        //     }
+        //     return d;
+        // }
+
         function toggleChildren(d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
+            if (d.childrenState === "expanded") {
                 d.childrenState = "collapsed";
-            } else if (d._children) {
-                d.children = d._children;
-                d._children = null;
+                if (d.childrenGrouped) {
+                    if (d.intermediateNode) {
+                        var children = d.children;
+                        d.intermediateNode.childrenState = "collapsed";
+                        d.intermediateNode._children = children;
+                        d.children = [d.intermediateNode];
+                        d.intermediateNode = null;
+                        d.childrenState = "expanded";
+                    }
+                    else {
+                        d.childrenState = "expanded";
+                        return d;
+                    }
+                }
+                else {
+                    d._children = d.children;
+                    d.children = null;
+                }
+            }
+            else if (d.childrenState === "collapsed") {
                 d.childrenState = "expanded";
+                if (d.childrenGrouped) {
+
+                }
+                else if (d.groupNode) {
+                    var children = d._children;
+                    // d.children = null;
+                    d.parent.intermediateNode = d;
+                    d.parent.children = children;
+                }
+                else {
+                    d.children = d._children;
+                    d._children = null;
+                }
+
             }
             return d;
         }
@@ -578,7 +644,26 @@ define([], function () {
                 .style("fill-opacity", 1);
 
             nodeUpdate.select("rect")
-                .attr("class", function (d) { return (d.childrenState === "collapsed") ? "node-rect collapsed" : "node-rect expanded"; })
+                .attr("class", function (d) { 
+                    var cssClass = "";
+                    if(d.childrenState === "collapsed") {
+                        if (d.groupNode) {
+                            cssClass = "node-rect collapsed group-node";
+                        }
+                        else {
+                             cssClass = "node-rect collapsed";
+                        }
+                    }
+                    else if(d.childrenState === "expanded") {
+                        if (d.groupNode) {
+                            cssClass = "node-rect expanded group-node";
+                        }
+                        else {
+                             cssClass = "node-rect expanded";
+                        }
+                    }
+                    return cssClass; 
+                })
                 .attr("x", function (d) {
                     // Account for 40px rect size. nodePositionOffset is set to 20 so that the center of the rect aligns with the node's center
                     return -nodePositionOffset;
@@ -589,7 +674,26 @@ define([], function () {
                 });
 
             nodeUpdate.select("image")
-                .attr("class", function (d) { return (d.childrenState === "collapsed") ? "node-image collapsed" : "node-image expanded"; })
+                .attr("class", function (d) { 
+                    var cssClass = "";
+                    if(d.childrenState === "collapsed") {
+                        if (d.groupNode) {
+                            cssClass = "node-image collapsed group-node";
+                        }
+                        else {
+                             cssClass = "node-image collapsed";
+                        }
+                    }
+                    else if(d.childrenState === "expanded") {
+                        if (d.groupNode) {
+                            cssClass = "node-image expanded group-node";
+                        }
+                        else {
+                             cssClass = "node-image expanded";
+                        }
+                    }
+                    return cssClass;                     
+                })
                 .attr("x", function (d) {
                     // Account for 40px icon size. nodePositionOffset is set to 20 so that the center of the image aligns with the node's center                    
                     return -nodePositionOffset;
@@ -610,6 +714,26 @@ define([], function () {
                     // TODO: This return value needs to be modified if the rect is changed from 40px                    
                     return 7;
                 })
+                .attr("class", function (d) { 
+                    var cssClass = "nodeInnerText ";
+                    if(d.childrenState === "collapsed") {
+                        if (d.groupNode) {
+                            cssClass += "collapsed group-node";
+                        }
+                        else {
+                             cssClass += "collapsed";
+                        }
+                    }
+                    else if(d.childrenState === "expanded") {
+                        if (d.groupNode) {
+                            cssClass += "expanded group-node";
+                        }
+                        else {
+                             cssClass += "expanded";
+                        }
+                    }
+                    return cssClass;                     
+                })                
                 .text(function (d) {
                     var text = (d._children) ? d._children.length : 0;
                     return (d.childrenState === "collapsed") ? text : "";

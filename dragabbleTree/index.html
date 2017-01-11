@@ -32,27 +32,31 @@
   }
 
   .nodeInnerText {
-    font-size:20px !important;       
+    font-size: 2px !important;           
+  }
+
+  .nodeInnerText.collapsed.group-node {
+    font-size: 20px !important;       
   }
 
   .node text, .link text  {
-    font-size:10px; 
-    font-family:sans-serif;
+    font-size: 10px; 
+    font-family: sans-serif;
   }
 
-  .node-rect.expanded {
+  .node-rect.expanded, .node-rect.collapsed {
     display: none;
   }
 
-  .node-image.expanded {
+  .node-image.expanded, .node-image.collapsed {
     display: block;
   }
 
-  .node-rect.collapsed  {
+  .node-rect.collapsed.group-node  {
     display: block;  
   }
 
-  .node-image.collapsed {
+  .node-image.collapsed.group-node {
     display: none;
   } 
    
